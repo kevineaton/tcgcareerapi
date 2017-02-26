@@ -1,6 +1,15 @@
 # tcgcareerapi
 TCG Career API Server
 
+This is the open-source RESTful API server for the TCG Career service.
+
+## Getting started
+
+To start the server, clone the repository, run `npm install` then run `npm run dev`
+
+## Contributing
+
+Please feel free to contribute! We are always looking at improving this young service.
 
 ## Notes and Other Considerations
 
