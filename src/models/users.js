@@ -28,6 +28,33 @@ export function get(userId) {
   });
 }
 
+export function attemptLogin(loginName, password){
+  return new Promise((resolve, reject) => {
+    db.getConnection((err, c) => {
+      c.query('SELECT * FROM Users WHERE (username = ? OR email = ?) LIMIT 1', [loginName, loginName], (e, user) => {
+        c.release();
+        if (e) {
+          return reject(e);
+        }
+        if (user !== null && user.length > 0) {
+          if(bcrypt.compareSync(password, user[0].password)){
+            user[0].jwt = utils.generateJWT(user[0]);
+            return resolve(user[0]);
+          } else {
+            const e = new Error('That user could not be found');
+            e.http_code = 401;
+            return reject(e);
+          }
+        } else {
+          const e = new Error('That user could not be found');
+          e.http_code = 401;
+          return reject(e);
+        }
+      });
+    });
+  });
+}
+
 export function stripSensitiveData(user) {
   user.delete('password');
   return user;

@@ -1,15 +1,63 @@
+import * as utils from '../libs/utils';
 import * as UsersModel from '../models/users';
 
+/**
+ * Routes for interacting with a user
+ * 
+ * /users/
+ *  POST: signup a new user
+ * 
+ * /users/login
+ *  POST: login
+ * 
+ * /users/:id
+ *  GET: get a user profile
+ */
 export default (app) => {
 
   app.route('/users')
     .post((req, res, next) => {
       //signup
+      //see if the fields are there
+      var data = {};
+      
+      if(req.body.username && req.username !== ''){
+        data.username = req.body.username.toLowerCase();
+      }
+      if(req.body.email && req.email !== ''){
+        data.email = req.body.email.toLowerCase();
+      }
+      if(req.body.password && req.password !== ''){
+        data.password = req.body.password;
+      }
+
+      if(utils.isEmpty(data)){
+        const e = new Error('You must provide a username, email, and password');
+        e.http_code = 400;
+        return next(e);
+      }
+
+      UsersModel.create(data.username, data.email, data.password)
+      .then((result) => {
+        return res.send(result);
+      });
     });
 
   app.route('/users/login')
     .post((req, res, next) => {
+      if(!req.body.loginName || req.body.loginName === '' || !req.body.password || req.body.password === ''){
+        const e = new Error('You must provide a loginName and password');
+        e.http_code = 400;
+        return next(e);
+      }
 
+      UsersModel.attemptLogin(req.body.loginName, req.body.password)
+      .then((user) => {
+        return res.send(user);
+      })
+      .catch((err) => {
+        return next(err);
+      });
     });
 
   app.route('/users/:id')

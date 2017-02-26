@@ -189,8 +189,10 @@ CREATE TABLE `Users` (
   `password` varchar(128) NOT NULL,
   `signupDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `status` enum('Verified','Unverified','Disabled') DEFAULT 'Unverified',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
