@@ -1,4 +1,4 @@
-# tcgcareerapi
+# TCG Career API
 TCG Career API Server
 
 This is the open-source RESTful API server for the TCG Career service.

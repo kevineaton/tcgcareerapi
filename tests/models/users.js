@@ -1,5 +1,4 @@
 import assert from 'assert';
-import _ from 'lodash';
 import {
   describe,
   it
@@ -73,4 +72,38 @@ describe('User Models tests', () => {
       done();
     });
   });
+
+  it('Should create with the test helper', (done) => {
+    let user1 = {};
+    let user2 = {};
+    const rand = Math.floor((Math.random() * 10000000) + 1);
+    UsersModel.createForTest({})
+    .then((res) => {
+      user1 = res;
+      assert(!utils.isEmpty(user1));
+      assert.equal(user1.status, 'Unverified');
+      return UsersModel.createForTest({username: rand, email: rand, password: rand, status: 'Verified'});
+    })
+    .then((res) => {
+      user2 = res;
+      assert.equal(user2.status, 'Verified');
+      assert.equal(user2.username, rand);
+      assert.equal(user2.email, rand);
+      return UsersModel.del(user1.id);
+    })
+    .catch((err) => {
+      return done(err);
+    })
+    .then(() => {
+      return UsersModel.del(user2.id);
+    })
+    .then(() => {
+      return done();
+    })
+    .catch((err) => {
+      assert.fail(err);
+      return done(err);
+    });
+  });
+  
 });

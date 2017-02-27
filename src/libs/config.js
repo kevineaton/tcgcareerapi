@@ -10,8 +10,8 @@ class ConfigClass {
     const options = {
       env: process.env.hasOwnProperty('TCG_API_ENV') ? process.env.TCG_API_ENV : 'dev',
       salt: '-tcgcar-20178987!',
-      api: process.env.hasOwnProperty('TCG_API_API') ? process.env.TCG_API_API : 'http://localhost:3000/',
-      webapp: process.env.hasOwnProperty('TCG_API_WEB') ? process.env.TCG_API_WEB : 'http://localhost:8002/#',
+      api: process.env.hasOwnProperty('TCG_API_API') ? process.env.TCG_API_API : 'http://localhost:3000',
+      webapp: process.env.hasOwnProperty('TCG_API_WEB') ? process.env.TCG_API_WEB : 'http://localhost:8002',
       port: process.env.hasOwnProperty('TCG_API_PORT') ? process.env.TCG_API_PORT : 3000,
     };
     return options;

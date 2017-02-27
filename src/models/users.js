@@ -1,7 +1,4 @@
-import crypto from 'crypto';
 import bcrypt from 'bcrypt-nodejs';
-import async from 'async';
-import moment from 'moment';
 import * as utils from '../libs/utils';
 import ConfigClass from '../libs/config';
 const db = global.db ? global.db : ConfigClass.getDb();
@@ -39,7 +36,8 @@ export function attemptLogin(loginName, password){
         if (user !== null && user.length > 0) {
           if(bcrypt.compareSync(password, user[0].password)){
             user[0].jwt = utils.generateJWT(user[0]);
-            return resolve(user[0]);
+            const u = stripSensitiveData(user[0]);
+            return resolve(u);
           } else {
             const e = new Error('That user could not be found');
             e.http_code = 401;
@@ -56,25 +54,38 @@ export function attemptLogin(loginName, password){
 }
 
 export function stripSensitiveData(user) {
-  user.delete('password');
+  delete(user.password);
   return user;
 }
 
-export function create(username, email, plainPassword) {
+export function create(username, email, plainPassword, otherData) {
   return new Promise((resolve, reject) => {
     const hashed = bcrypt.hashSync(plainPassword, bcrypt.genSaltSync(8), null);
+    const status = otherData && otherData.status ? otherData.status : 'Unverified';
     db.getConnection((err, c) => {
-      c.query('INSERT INTO Users (username, email, password, signupDate, status) VALUES (?,?,?,NOW(),"Unverified")', [username, email, hashed], (e, user) => {
+      const query = 'INSERT INTO Users (username, email, password, signupDate, status) VALUES (?,?,?,NOW(),?)';
+      const values = [username, email, hashed, status];
+      c.query(query, values, (e, user) => {
         c.release();
         if (e) {
           return reject(e);
         }
-        return resolve({
-          id: user.insertId
+        get(user.insertId)
+        .then((user) => {
+          resolve(user);
         });
       });
     });
   });
+}
+
+export function createForTest(otherData){
+  const rand = Math.floor((Math.random() * 10000000) + 1);
+  const username = otherData.username ? otherData.username : `test-${rand}`;
+  const email = otherData.email ? otherData.email : `test${rand}@tcgcareer.com`;
+  const password = otherData.password ? otherData.password : `password${rand}`;
+  const status = otherData.status ? otherData.status : 'Unverified';
+  return create(username, email, password, {status: status});
 }
 
 export function del(id) {
@@ -95,35 +106,35 @@ export function del(id) {
 
 export function update(id, data) {
   return new Promise((resolve, reject) => {
+    let query = 'UPDATE Users SET ';
+    let values = [];
+
+    if (data.email) {
+      query += 'Email = ?, ';
+      values.push(data.email);
+    }
+
+    if (data.password) {
+      const hashed = bcrypt.hashSync(data.password, bcrypt.genSaltSync(8), null);
+      query += 'Password = ?, ';
+      values.push(hashed);
+    }
+
+    if (data.status) {
+      query += 'Status = ?, ';
+      values.push(data.status);
+    }
+
+    if (values.length === 0) {
+      const e = new Error('You must provide data to update');
+      e.http_code = 400;
+      return Promise.reject(e);
+    }
+
+    query = query.substring(0, query.length - 2) + ' WHERE Id = ? LIMIT 1';
+    values.push(id);
+    
     db.getConnection((err, c) => {
-      let query = 'UPDATE Users SET ';
-      let values = [];
-
-      if (data.email) {
-        query += 'Email = ?, ';
-        values.push(data.email);
-      }
-
-      if (data.password) {
-        const hashed = bcrypt.hashSync(data.password, bcrypt.genSaltSync(8), null);
-        query += 'Password = ?, ';
-        values.push(hashed);
-      }
-
-      if (data.status) {
-        query += 'Status = ?, ';
-        values.push(data.status);
-      }
-
-      if (values.length === 0) {
-        const e = new Error('You must provide data to update');
-        e.http_code = 400;
-        return Promise.reject(e);
-      }
-
-      query = query.substring(0, query.length - 2) + ' WHERE Id = ? LIMIT 1';
-      values.push(id);
-
       c.query(query, values, (e) => {
         c.release();
         if (e) {

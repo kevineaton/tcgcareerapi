@@ -37,8 +37,9 @@ export default (app) => {
         return next(e);
       }
 
-      UsersModel.create(data.username, data.email, data.password)
+      UsersModel.create(data.username, data.email, data.password, {status: 'Verified'})
       .then((result) => {
+        // eventually we will want to authenticate but for now, let them be
         return res.send(result);
       });
     });
