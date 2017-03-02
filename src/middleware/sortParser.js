@@ -13,9 +13,9 @@ export function sortParser (req, res, next) {
   if(req.query && req.query.sortDir){
     var sortTemp = req.query.sortDir.toUpperCase();
     if(sortTemp === 'ASC' || sortTemp === 'DESC'){
-      sort.sortCol = sortTemp;
+      sort.sortDir = sortTemp;
     }else{
-      sort.sortCol = 'ASC';
+      sort.sortDir = 'ASC';
     }
   } else {
     sort.sortDir = 'ASC';

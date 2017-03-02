@@ -23,17 +23,55 @@ export function get(matchId) {
   });
 }
 
-export function getForUser(userId) {
+export function getForUser(userId, options) {
   return new Promise((resolve, reject) => {
     db.getConnection((err, c) => {
-      let query = 'SELECT m.*, g.gameName, g.gameType FROM Matches m, Games g WHERE m.userId = ? AND m.gameId = g.Id ORDER BY m.matchDateTime DESC';
+      let selectQuery = 'SELECT m.*, g.id AS gameId, g.game, g.gameType FROM Matches m, Games g WHERE m.userId = ? AND m.gameId = g.Id';
       let values = [userId];
+
+      let orderString = ' ORDER BY matchDateTime DESC ';
+      if(options.sort && options.sort.sortCol){
+        
+        let sortDir = 'ASC';
+        if(options.sort.sortDir){
+          sortDir = options.sort.sortDir.toUpperCase();
+          if(sortDir === 'DESC'){
+            sortDir = 'DESC';
+          } else {
+            sortDir = 'ASC';
+          }
+        }
+
+        let sortCol = options.sort.sortCol.toLowerCase();
+        switch(sortCol){
+        case 'id':
+          orderString = ` ORDER BY id ${sortDir}`;
+          break;
+        case 'opponentname':
+          orderString = ` ORDER BY opponentName ${sortDir}`;
+          break;
+        case 'opponentid':
+          orderString = ` ORDER BY opponentid ${sortDir}`;
+          break;
+        case 'gameid':
+          orderString = ` ORDER BY gameId ${sortDir}`;
+          break;
+        case 'outcome':
+          orderString = ` ORDER BY outcome ${sortDir}`;
+          break;
+        default:
+          orderString = ` ORDER BY matchDateTime ${sortDir}`;
+          break;
+        }
+      }
+      const query = `${selectQuery} ${orderString}`;
+
       c.query(query, values, (e, matches) => {
         c.release();
         if (e) {
           return reject(e);
         }
-        return resizeBy.next(matches);
+        return resolve(matches);
       });
     });
   });
@@ -59,9 +97,12 @@ export function create(userId, matchDateTime, outcome, optionalData){
       values.push(optionalData.deckId);
     }
 
+
+    params.push('notes');
     if(optionalData.notes){
-      params.push('notes');
       values.push(optionalData.notes);
+    } else {
+      values.push('');
     }
 
     if(optionalData.subWin){

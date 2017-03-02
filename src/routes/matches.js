@@ -29,10 +29,7 @@ export default (app) => {
   app.route('/users/:userId/matches')
     .post((req, res, next) => {
       const userId = parseInt(req.params.userId);
-      console.log(req.user);
       if(!req.user.found){ const e = new Error('You must be logged in'); e.http_code = 401; return next(e); }
-      console.log('&&&&&&&&&&&&&&&&&&&&');
-      console.log(typeof req.user.id, typeof userId);
       if(req.user.id !== userId){ const e = new Error('You can only create matches for yourself'); e.http_code = 401; return next(e); }
       // required fields
       const gameId = req.body.gameId ? req.body.gameId : null;
@@ -79,11 +76,15 @@ export default (app) => {
       });
     })
     .get((req, res, next) => {
+      const userId = parseInt(req.params.userId);
       if(!req.user.found){ const e = new Error('You must be logged in'); e.http_code = 401; return next(e); }
-      if(req.user.id !== req.params.userId){ const e = new Error('You can only see matches for yourself'); e.http_code = 401; return next(e); }
-      console.log(req.sort);
-      res.send({});
-      //MatchesModel.getForUser(req.user.id, {})
+      if(req.user.id !== userId){ const e = new Error('You can only see matches for yourself'); e.http_code = 401; return next(e); }
+      MatchesModel.getForUser(userId, {sort: req.sort})
+      .then((matches) => {
+        return res.send(matches);
+      })
+      .catch((err) => {return next(err); });
+      
     });
 
   app.route('/users/:userId/matches/:matchId')
