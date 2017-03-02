@@ -141,6 +141,7 @@ CREATE TABLE `Games` (
 LOCK TABLES `Games` WRITE;
 /*!40000 ALTER TABLE `Games` DISABLE KEYS */;
 /*!40000 ALTER TABLE `Games` ENABLE KEYS */;
+INSERT INTO Games VALUES (1, 'Pokemon TCG', 'TCG');
 UNLOCK TABLES;
 
 --
@@ -153,6 +154,7 @@ DROP TABLE IF EXISTS `Matches`;
 CREATE TABLE `Matches` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userId` int(11) NOT NULL,
+  `gameId` int(11) NOT NULL DEFAULT '1',
   `opponentId` int(11) DEFAULT '0',
   `opponentName` varchar(128) DEFAULT NULL,
   `matchDateTime` datetime DEFAULT NULL,
@@ -162,7 +164,8 @@ CREATE TABLE `Matches` (
   `subWin` int(11) DEFAULT '0',
   `subLoss` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `userId` (`userId`)
+  KEY `userId` (`userId`),
+  KEY `gameId` (`gameId`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

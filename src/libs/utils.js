@@ -4,6 +4,8 @@ import entities from 'entities';
 import sanitizeHTML from 'sanitize-html';
 import crypto from 'crypto';
 
+import Config from './config';
+
 export function isEmpty(obj) {
   if (!obj) return true;
   if (obj === null) return true;
@@ -43,7 +45,7 @@ export function handleError(message, code) {
 }
 
 export function generateJWT(payload) {
-  const secret = global.config.salt; 
+  const secret = Config.getConfig().salt; 
   const header = {
     'alg': 'HS256',
     'typ': 'JWT'
@@ -118,4 +120,9 @@ export function sortKeysBy(obj, comparator) {
   return _.object(keys, _.map(keys, (key) => {
     return obj[key];
   }));
+}
+
+export function capFirstLetter(word) {
+  if(!word || word.length < 1) { return word; }
+  return `${word[0].toUpperCase()}${word.substr(1)}`;
 }

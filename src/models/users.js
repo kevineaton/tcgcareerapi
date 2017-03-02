@@ -72,6 +72,7 @@ export function create(username, email, plainPassword, otherData) {
         }
         get(user.insertId)
         .then((user) => {
+          user.jwt = utils.generateJWT(user);
           resolve(user);
         });
       });

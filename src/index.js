@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { parseAuth } from './middleware/auth';
+import { sortParser } from './middleware/sortParser';
 import ConfigClass from './libs/config';
 
 import routes from './routes';
@@ -24,7 +25,10 @@ app.use(session({
   secret: 'tcgcareer'
 }));
 app.use(helmet());
+
+// custom middleware
 app.use(parseAuth);
+app.use(sortParser);
 
 // CORS
 app.use((req, res, next) => {

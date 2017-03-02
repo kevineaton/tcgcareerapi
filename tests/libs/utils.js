@@ -118,4 +118,13 @@ describe('Utils tests', () =>  {
       done();
     });
   });
+
+  describe('Capitalize first letter', () => {
+    it('Should capitalize the first letter', (done) => {
+      assert.equal(utils.capFirstLetter(''), '');
+      assert.equal(utils.capFirstLetter('a'), 'A');
+      assert.equal(utils.capFirstLetter('moo'), 'Moo');
+      done();
+    });
+  });
 });

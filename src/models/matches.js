@@ -6,7 +6,7 @@ const db = global.db ? global.db : ConfigClass.getDb();
 export function get(matchId) {
   return new Promise((resolve, reject) => {
     db.getConnection((err, c) => {
-      c.query('SELECT * FROM Matches WHERE id = ?', [matchId], (e, match) => {
+      c.query('SELECT m.* FROM Matches m WHERE m.id = ?', [matchId], (e, match) => {
         c.release();
         if (e) {
           return reject(e);
@@ -18,6 +18,22 @@ export function get(matchId) {
           e.http_code = 404;
           return reject(e);
         }
+      });
+    });
+  });
+}
+
+export function getForUser(userId) {
+  return new Promise((resolve, reject) => {
+    db.getConnection((err, c) => {
+      let query = 'SELECT m.*, g.gameName, g.gameType FROM Matches m, Games g WHERE m.userId = ? AND m.gameId = g.Id ORDER BY m.matchDateTime DESC';
+      let values = [userId];
+      c.query(query, values, (e, matches) => {
+        c.release();
+        if (e) {
+          return reject(e);
+        }
+        return resizeBy.next(matches);
       });
     });
   });
@@ -56,6 +72,11 @@ export function create(userId, matchDateTime, outcome, optionalData){
     if(optionalData.subLoss){
       params.push('subLoss');
       values.push(optionalData.subLoss);
+    }
+
+    if(optionalData.gameId){
+      params.push('gameId');
+      values.push(optionalData.gameId);
     }
 
     let paramString = '(';
