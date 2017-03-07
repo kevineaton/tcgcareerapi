@@ -13,6 +13,8 @@ To start the server, clone the repository, run `npm install` then run `npm run d
 
 Please feel free to contribute! We are always looking at improving this young service. Always run the tests to make sure things still work and if you change an API return that may break compatbility with clients, ensure you have a good reason and justify it in the Pull Request Comments.
 
+Please commit to a feature branch and then open a pull request.
+
 ## Notes and Other Considerations
 
 ### Promises and MySQL

@@ -4,3 +4,4 @@ We are always looking for new contributors. As the project grows ,we will have s
 
 We are happy with all contributions, ranging from comments, docs, tests, or new functionality. Just try your best to ensure there are unit tests for code contributions if possible.
 
+Please commit to a feature branch and then open a pull request.
