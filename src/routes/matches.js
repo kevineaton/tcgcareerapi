@@ -80,16 +80,16 @@ export default (app) => {
       if(!req.user.found){ const e = new Error('You must be logged in'); e.http_code = 401; return next(e); }
       if(req.user.id !== userId){ const e = new Error('You can only see matches for yourself'); e.http_code = 401; return next(e); }
       const data = {sort: req.sort};
-      if(req.body.from){
-        if(req.body.to){
-          data.to = moment(req.body.to).format('YYYY-MM-DD HH:mm:59');
+      if(req.query.from){
+        if(req.query.to){
+          data.to = moment(req.query.to).format('YYYY-MM-DD HH:mm:59');
         } else {
           data.to = moment().format('YYYY-MM-DD HH:mm:59');
         }
-        data.from = moment().format('YYYY-MM-DD HH:mm:00');
+        data.from = moment(req.query.from).format('YYYY-MM-DD HH:mm:00');
       }
       if(req.body.gameId){
-        data.gameId = req.body.gameId;
+        data.gameId = req.query.gameId;
       }
       
       MatchesModel.getForUser(userId, data)
