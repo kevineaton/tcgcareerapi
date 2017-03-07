@@ -41,6 +41,11 @@ export default (app) => {
       .then((result) => {
         // eventually we will want to authenticate but for now, let them be
         return res.send(result);
+      })
+      .catch(() => {
+        const e = new Error('We could not create that account. perhaps that username or email is in use?');
+        e.http_code = 400;
+        return next(e);
       });
     });
 

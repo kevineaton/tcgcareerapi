@@ -80,6 +80,11 @@ describe('User routes', () => {
       assert.equal(res.body.username, rand);
       assert(res.body.jwt);
       assert(!res.password);
+      //try to sign them up again, should get an error
+      return testUtils.makeCall('post', 'users', {username: rand, password: rand+'', email: rand});
+    })
+    .then((res) => {
+      assert.equal(res.code, 400);
       return UsersModel.del(user.id);
     })
     .then(() => {return done();})

@@ -79,7 +79,20 @@ export default (app) => {
       const userId = parseInt(req.params.userId);
       if(!req.user.found){ const e = new Error('You must be logged in'); e.http_code = 401; return next(e); }
       if(req.user.id !== userId){ const e = new Error('You can only see matches for yourself'); e.http_code = 401; return next(e); }
-      MatchesModel.getForUser(userId, {sort: req.sort})
+      const data = {sort: req.sort};
+      if(req.body.from){
+        if(req.body.to){
+          data.to = moment(req.body.to).format('YYYY-MM-DD HH:mm:59');
+        } else {
+          data.to = moment().format('YYYY-MM-DD HH:mm:59');
+        }
+        data.from = moment().format('YYYY-MM-DD HH:mm:00');
+      }
+      if(req.body.gameId){
+        data.gameId = req.body.gameId;
+      }
+      
+      MatchesModel.getForUser(userId, data)
       .then((matches) => {
         return res.send(matches);
       })

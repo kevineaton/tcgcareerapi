@@ -29,8 +29,19 @@ export function getForUser(userId, options) {
       let selectQuery = 'SELECT m.*, g.id AS gameId, g.game, g.gameType FROM Matches m, Games g WHERE m.userId = ? AND m.gameId = g.Id';
       let values = [userId];
 
-      let orderString = ' ORDER BY matchDateTime DESC ';
-      if(options.sort && options.sort.sortCol){
+      if(options.from && options.to){
+        selectQuery += ' AND m.matchDateTime BETWEEN ? AND ? ';
+        values.push(options.from);
+        values.push(options.to);
+      }
+
+      if(options.gameId){
+        selectQuery += ' AND m.gameId = ? ';
+        values.push(options.gameId);
+      }
+
+      let orderString = ' ORDER BY m.matchDateTime DESC ';
+      if(options.sort && options.sort.sortCol && options.sort.sortCol !== 'id'){
         
         let sortDir = 'ASC';
         if(options.sort.sortDir){

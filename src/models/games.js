@@ -1,3 +1,4 @@
+
 import ConfigClass from '../libs/config';
 const db = global.db ? global.db : ConfigClass.getDb();
 
